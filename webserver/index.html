@@ -81,6 +81,7 @@
 				Menu
 				<ul>
 					<li><a href="#tab_map" data-permission="web.map">Map</a></li>
+					<li><a href="poi.html" data-permission="webapi.getplayerlist" target="poipopup" onclick="OpenPOIPopup(); return false;">New Pin</a></li>
 					<li><a href="#tab_players" data-permission="webapi.getplayerlist">Players</a></li> <!-- data-permission="web.players" -->
 					<li><a href="#tab_log" data-permission="webapi.getlog">Log <span id="newlogcount"></span></a></li>
 				</ul>
@@ -107,7 +108,7 @@
 			<h1 id="nopermissionwarning" style="display:none">An error occured or you have not logged in.  Try logging in with the Steam login in the lower left!</h1>
 			
 			<div id="tab_map" class="adminmap"></div>
-			
+
 			<div id="tab_players" class="adminplayers">
 				<!-- Current AJAX url: <span id="players_url"></span> -->
 				<table class="players_tablesorter">

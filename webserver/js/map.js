@@ -114,8 +114,9 @@ function InitMap() {
 
 
 	tileLayer.addTo(map);
-
-	new L.Control.Coordinates({}).addTo(map);
+	
+	coordcontrol = new L.Control.Coordinates({})
+	coordcontrol.addTo(map);
 	
 	new L.Control.ReloadTiles({
 		autoreload_enable: true,
@@ -566,13 +567,47 @@ function InitMap() {
 		console.log("Error fetching density mismatch list");
 	});
 
+	var POIAPI = "https://api.url.goes.here/prod/"
+	var serverId = "SOMETHING";
+	$.getJSON( POIAPI+serverId)
+	.done(function(data) {
+
+	var clearlist = L.markerClusterGroup({
+		maxClusterRadius: function(zoom) { return zoom >= mapinfo.maxzoom ? 10 : 50; }
+	});
+	var poilist = L.markerClusterGroup({
+		maxClusterRadius: function(zoom) { return zoom >= mapinfo.maxzoom ? 10 : 50; }
+	});
+		layerControl.addOverlay(clearlist,'Cleared POIs');
+		layerControl.addOverlay(poilist,'Other POIs');
+		$.each(data.markers, i => {
+			let marker = data.markers[i];
+			if (marker.label == 'clear') {
+			clearlist.addLayer(L.marker([marker.ns,marker.ew]).bindPopup(marker.label))
+			} else {
+			poilist.addLayer(L.marker([marker.ns,marker.ew]).bindPopup(marker.label))
+			}
+		})
+
+	})
+	.fail(function(jqxhr, textStatus, error) {
+		console.log ("Error fetching POI information");
+	})
+
 }
 
+	function OpenPOIPopup() {
+		var user = document.getElementById('username').innerText;
+		var ew = coordcontrol.lastClick.lat;
+		var ns = coordcontrol.lastClick.lng;
+		window.open('poi.html?user='+user+'&ew='+ew+'&ns='+ns,'poipopup','width=450,height=150,scrollbars=no,resizable=no')
+	}
 
 
 
 
 function StartMapModule () {
+
 	$.getJSON( "../map/mapinfo.json")
 	.done(function(data) {
 		mapinfo.tilesize = data.blockSize;

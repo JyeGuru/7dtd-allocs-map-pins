@@ -1,0 +1,78 @@
+<html>
+  <head>
+    <title>7 Days to Die: Webmap POI Entry</title>
+    <script lang="javascript">
+        APIURI = "https://api.url.goes.here/prod/";
+        serverId = "SOMETHING";
+
+      function submitPOI(data) {
+          if (!data.submitter) {
+            document.getElementById('response').innerHTML = "POI Adding failed.";
+          } else {
+          fetch(APIURI + serverId, {
+              method: "POST",
+              headers: {
+              "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+          })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Success:", data);
+            document.getElementById('response').innerHTML = "POI Added!";
+            window.close();
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            document.getElementById('response').innerHTML = "POI Adding failed.";
+          });
+      }
+    }
+      function validateEntry() {
+        var params = new URLSearchParams(location.search);
+          var elems = document.getElementById('poiform').elements;
+        var data = {
+            "ns": elems.namedItem('nscoord').value * (elems.namedItem('ns').value),
+            "ew": elems.namedItem('ewcoord').value * (elems.namedItem('ew').value),
+            "label": ((elems.namedItem('label').value == 'other') ? elems.namedItem('labelother').value : "clear"),
+            "submitter": params.get('user'),
+            "time": Date.now()
+        }
+        console.log (data)
+        submitPOI(data)
+      }
+
+      function initPosition() {
+        var params = new URLSearchParams(location.search);
+        var ns = (params.get('ns') == 'undefined' || params.get('ns') == "") ? 0 : params.get('ns');
+        var ew = (params.get('ew') == 'undefined' || params.get('ew') == "") ? 0 : params.get('ew');
+        var elems = document.getElementById('poiform').elements;
+        elems.namedItem('nscoord').value = ns;
+        elems.namedItem('ewcoord').value = ew;
+      }
+    
+    </script>
+    	<link rel="stylesheet" href="css/style.css" media="screen" type="text/css" />
+  </head>
+  <body onload="initPosition()">
+      <div style="padding: 20px">
+    <form id="poiform">
+      <input name="nscoord" size="5" type="text" value="0" />
+      <label><input name="ns" type="radio" value="1" checked />N</label>
+      <label><input name="ns" type="radio" value="-1" />S </label>
+      <label><input name="ewcoord" size="5" type="text" value="0" />
+      <label><input name="ew" type="radio" value="1" checked />E</label>
+      <label><input name="ew" type="radio" value="-1" />W </label>
+      <br />
+      <label><input name="label" type="radio" value="clear" onchange="document.getElementById('poiform').elements.namedItem('labelother').disabled = this.checked" checked /> Clear </label>
+      <label><input name="label" type="radio" value="other" onchange="document.getElementById('poiform').elements.namedItem('labelother').disabled = !this.checked" />
+      <input name="labelother" size="25" type="text" value="" disabled /></label>
+      <br />
+      <input name="Submit" type="button" value="Submit" onclick="validateEntry()" />
+    </form>
+    </div>
+    <div id="response">
+
+    </div>
+    </body>
+</html>
