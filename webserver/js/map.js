@@ -567,40 +567,61 @@ function InitMap() {
 		console.log("Error fetching density mismatch list");
 	});
 
-	var POIAPI = "https://api.url.goes.here/prod/"
-	var serverId = "SOMETHING";
-	$.getJSON( POIAPI+serverId)
-	.done(function(data) {
+	clearIcon = L.icon({
+	    iconUrl: 'img/clear.png',
 
-	var clearlist = L.markerClusterGroup({
+	    iconSize:     [16, 16], // size of the icon
+	    shadowSize:   [16, 16], // size of the shadow
+	    iconAnchor:   [8, 8], // point of the icon which will correspond to marker's location
+	    shadowAnchor: [8, 8],  // the same for the shadow
+	    popupAnchor:  [0, 0] // point from which the popup should open relative to the iconAnchor
+	});
+
+	clearlist = L.markerClusterGroup({
 		maxClusterRadius: function(zoom) { return zoom >= mapinfo.maxzoom ? 10 : 50; }
 	});
-	var poilist = L.markerClusterGroup({
+	poilist = L.markerClusterGroup({
 		maxClusterRadius: function(zoom) { return zoom >= mapinfo.maxzoom ? 10 : 50; }
 	});
 		layerControl.addOverlay(clearlist,'Cleared POIs');
 		layerControl.addOverlay(poilist,'Other POIs');
+
+	POIAPI = "https://api.url.goes.here/prod/"
+	serverId = "SOMETHING";
+	RefreshPOIs();
+
+}
+
+function RefreshPOIs() {
+	$.getJSON( POIAPI+serverId)
+	.done(function(data) {
+	clearlist.clearLayers();
+	poilist.clearLayers();
+
 		$.each(data.markers, i => {
 			let marker = data.markers[i];
+			let display = "<span onClick='console.log(\""+marker.id+"\")'>["+marker.ns+","+marker.ew+"]<br /><b>"+marker.label+"</b></span>";
 			if (marker.label == 'clear') {
-			clearlist.addLayer(L.marker([marker.ns,marker.ew]).bindPopup(marker.label))
+			clearlist.addLayer(L.marker([marker.ew,marker.ns], {icon: clearIcon}).bindPopup(display))
 			} else {
-			poilist.addLayer(L.marker([marker.ns,marker.ew]).bindPopup(marker.label))
+			poilist.addLayer(L.marker([marker.ew,marker.ns]).bindPopup(display))
 			}
 		})
-
+		console.log("POIs Refreshed!");
 	})
 	.fail(function(jqxhr, textStatus, error) {
 		console.log ("Error fetching POI information");
 	})
-
 }
 
 	function OpenPOIPopup() {
 		var user = document.getElementById('username').innerText;
-		var ew = coordcontrol.lastClick.lat;
-		var ns = coordcontrol.lastClick.lng;
-		window.open('poi.html?user='+user+'&ew='+ew+'&ns='+ns,'poipopup','width=450,height=150,scrollbars=no,resizable=no')
+		var ew = Math.round(coordcontrol.lastClick.lat);
+		var ns = Math.round(coordcontrol.lastClick.lng);
+		var popup = window.open('poi.html?user='+user+'&ew='+ew+'&ns='+ns,'poipopup','width=450,height=150,scrollbars=no,resizable=no')
+		popup.onbeforeunload = function() {
+			RefreshPOIs();
+		}
 	}
 
 

@@ -105,6 +105,7 @@ L.Control.ReloadTiles = L.Control.extend({
 			e.data.options.layers [i].options.time = newTileTime;
 			e.data.options.layers [i].redraw ();
 		}
+		RefreshPOIs();
 	},
 
 	_reloadTilesEvent: function() {
@@ -112,6 +113,5 @@ L.Control.ReloadTiles = L.Control.extend({
 		this._reload ({data: this});
 		this._timeout = window.setTimeout ($.proxy (this._reloadTilesEvent, this), this.options.autoreload_interval*1000);
 	},
-
 });
 

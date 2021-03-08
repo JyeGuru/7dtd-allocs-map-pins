@@ -36,7 +36,6 @@
             "ew": elems.namedItem('ewcoord').value * (elems.namedItem('ew').value),
             "label": ((elems.namedItem('label').value == 'other') ? elems.namedItem('labelother').value : "clear"),
             "submitter": params.get('user'),
-            "time": Date.now()
         }
         console.log (data)
         submitPOI(data)
